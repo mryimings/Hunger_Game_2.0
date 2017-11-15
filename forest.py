@@ -169,6 +169,9 @@ class Forest:
 
     def print_forest(self):
         for i in range(len(self.cells)):
-            print self.cells[i]['attribute']+',',
+            if i in self.curr_carnivores:
+                print 'carnivore,',
+            else:
+                print self.cells[i]['attribute']+',',
             if i % self.col_num == self.col_num-1:
                 print '\n'
