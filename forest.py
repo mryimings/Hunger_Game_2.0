@@ -172,6 +172,3 @@ class Forest:
             print self.cells[i]['attribute']+',',
             if i % self.col_num == self.col_num-1:
                 print '\n'
-
-
-
