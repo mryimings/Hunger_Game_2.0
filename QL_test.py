@@ -51,10 +51,10 @@ def e_greedy_pick(Q, state, e):
         return random.randint(0,4)
 
 if __name__ == '__main__':
-    f= forest.Forest(row=7, col=7, mushroom=5, trap=0, tree=0, carnivore=0, disaster_p=0)
+    f = forest.Forest(row=7, col=7, mushroom=5, trap=0, tree=0, carnivore=0, disaster_p=0)
     #forest.Forest.print_forest(f)
     f.print_map(None)
     model, max_survival_time = Q_Learing(f, num_episode=1000)
-    print max_survival_time
+    print(max_survival_time)
     del f
     

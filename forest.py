@@ -142,7 +142,7 @@ class Forest:
 
             # if a carnivore goes too far, it will come back
             if self.is_too_far(p1=carn_init_pos, p2=carn_curr_pos):
-                    if carn_curr_pos/self.col_num - carn_init_pos/self.col_num < 0:
+                if carn_curr_pos/self.col_num - carn_init_pos/self.col_num < 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['down']
                 elif carn_curr_pos/self.col_num - carn_init_pos/self.col_num > 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['up']
@@ -151,7 +151,7 @@ class Forest:
                 elif carn_curr_pos%self.col_num - carn_init_pos%self.col_num < 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['left']
                 else:
-                    print "how can this be happening!"
+                    print("how can this be happening!")
                 # self.carnivores[carn_init_pos] = carn_init_pos
             else:
                 next_state = self.random_pick_action()
@@ -178,11 +178,11 @@ class Forest:
     def print_forest(self):
         for i in range(len(self.cells)):
             if i in self.curr_carnivores:
-                print 'carnivore,',
+                print('carnivore,'),
             else:
-                print self.cells[i]['attribute']+',',
+                print(self.cells[i]['attribute']+','),
             if i % self.col_num == self.col_num-1:
-                print '\n'
+                print('\n')
 
     def re_initialize(self):
         for mushroom_pos in self.mushroom_states:
