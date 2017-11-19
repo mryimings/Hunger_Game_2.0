@@ -4,7 +4,7 @@ import random
 from forest import action_mapping
 
 
-def Q_Learing(forest_env, num_episode=100, gamma=0.95, lr=0.1, e=0.1, max_iter=200000):
+def Q_Learing(forest_env, num_episode=100, gamma=0.95, lr=0.1, e=0.1, max_iter=2000000):
     q = numpy.zeros((forest_env.cell_num, 5))
     max_survival_time = 0
     for num in range(num_episode):
@@ -23,6 +23,7 @@ def Q_Learing(forest_env, num_episode=100, gamma=0.95, lr=0.1, e=0.1, max_iter=2
             iter_times += 1
             pos = next_pos
         max_survival_time = max(max_survival_time, iter_times)
+        forest_env.re_initialize()
         if max_survival_time == max_iter:
             break
     return q, max_survival_time
@@ -37,16 +38,18 @@ def e_greedy_pick(Q, state, e):
 
 if __name__ == '__main__':
 
-    rewards = {"blank":-1,
-            "tree_max":20,
-            "tree_punishment":-10,
-            "trap":-100,
-            "mushroom":60,
-            "mushroom_refresh":100,
-            "carnivores":-1000,
-            "disaster":-10
+    rewards = {"blank": -1,
+                "tree_max": 20,
+                "tree_punishment": -10,
+                "trap": -100,
+                "mushroom": 60,
+                "mushroom_refresh": 100,
+                "carnivores": -1000,
+                "disaster": -10
             }
 
-    f = forest.Forest(row=10, col=10, mushroom=4, trap=0, tree=0, carnivore=0, disaster_p=0, rewards=rewards)
-    model, max_survival_time = Q_Learing(f, num_episode=10000)
+    f = forest.Forest(row=5, col=5, mushroom=1, trap=0, tree=0, carnivore=1, disaster_p=0, rewards=rewards)
+    f.print_forest()
+    model, max_survival_time = Q_Learing(f, num_episode=1000, max_iter=2000000)
     print(max_survival_time)
+    del f
