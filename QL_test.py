@@ -42,13 +42,13 @@ if __name__ == '__main__':
                 "tree_max": 20,
                 "tree_punishment": -10,
                 "trap": -100,
-                "mushroom": 60,
+                "mushroom": 50,
                 "mushroom_refresh": 100,
                 "carnivores": -1000,
                 "disaster": -10
             }
 
-    f = forest.Forest(row=5, col=5, mushroom=1, trap=0, tree=0, carnivore=1, disaster_p=0, rewards=rewards)
+    f = forest.Forest(row=5, col=5, mushroom=5, trap=0, tree=0, carnivore=1, disaster_p=0, rewards=rewards)
     f.print_forest()
     model, max_survival_time = Q_Learing(f, num_episode=1000, max_iter=2000000)
     print(max_survival_time)
