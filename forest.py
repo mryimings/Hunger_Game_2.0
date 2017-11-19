@@ -2,8 +2,9 @@ import random
 
 action_mapping = {0: 'up', 1: 'right', 2: 'down', 3: 'left', 4: 'stay'}
 
+
 class Forest:
-    def __init__(self, row=25, col=20, tree=25, trap=25, mushroom=25, carnivore=25, disaster_p=0.001):
+    def __init__(self, row=25, col=20, tree=25, trap=25, mushroom=25, carnivore=25, disaster_p=0.001, rewards=None):
 
         self.row_num = row
         self.col_num = col
@@ -19,6 +20,15 @@ class Forest:
         self.disaster_area = set()
         self.disaster_last_time = 0
         self.disaster_probability = disaster_p
+        
+        self.rewards_blank = rewards.get("blank", -1)
+        self.rewards_tree_max = rewards.get("tree_max", 20)
+        self.tree_punishment = rewards.get("tree_punishment", -10)
+        self.rewards_trap = rewards.get("trap", -100)
+        self.rewards_mushroom = rewards.get("mushroom", 50)
+        self.mushroom_refresh = rewards.get("mushroom_refresh", 100)
+        self.rewards_carnivores = rewards.get("carnivores", -1000)
+        self.rewards_disaster = rewards.get("disaster", -10)
 
         for i in range(self.cell_num):
 
@@ -87,23 +97,24 @@ class Forest:
         curr_att = self.cells[position]['attribute']
         ret_reward = 0
         if curr_att == 'blank':
-            ret_reward += -1
+            ret_reward += self.rewards_blank
         elif curr_att == 'tree':
-            ret_reward += (random.randint(0,20)-10)
+            ret_reward += (random.randint(0, self.rewards_tree_max) +
+                            self.tree_punishment)
         elif curr_att == 'trap':
-            ret_reward += -100
-        elif curr_att == 'mushroon':
-            if self.mushroom_states[position] >= 0:
-                ret_reward += 50
-                self.mushroom_states[position] = 100
+            ret_reward += self.rewards_trap
+        elif curr_att == 'mushroom':
+            if self.mushroom_states[position] <= 0:
+                ret_reward += self.rewards_mushroom
+                self.mushroom_states[position] = self.mushroom_refresh
             else:
                 ret_reward += -1
 
         if position in self.curr_carnivores:
-            ret_reward += -100 * self.curr_carnivores[position]
+            ret_reward += self.rewards_carnivores * self.curr_carnivores[position]
 
         if position in self.disaster_area:
-            ret_reward += -10
+            ret_reward += self.rewards_disaster
 
         return ret_reward
 
@@ -151,7 +162,7 @@ class Forest:
                 elif carn_curr_pos%self.col_num - carn_init_pos%self.col_num < 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['left']
                 else:
-                    print "how can this be happening!"
+                    print ("how can this be happening!")
                 # self.carnivores[carn_init_pos] = carn_init_pos
             else:
                 next_state = self.random_pick_action()
@@ -178,11 +189,11 @@ class Forest:
     def print_forest(self):
         for i in range(len(self.cells)):
             if i in self.curr_carnivores:
-                print 'carnivore,',
+                print('carnivore,')
             else:
-                print self.cells[i]['attribute']+',',
+                print(self.cells[i]['attribute']+',')
             if i % self.col_num == self.col_num-1:
-                print '\n'
+                print('\n')
 
 
 
