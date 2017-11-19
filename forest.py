@@ -5,7 +5,7 @@ action_mapping = {0: 'up', 1: 'right', 2: 'down', 3: 'left', 4: 'stay'}
 
 class Forest:
     def __init__(self, row=25, col=20, tree=25, trap=25, mushroom=25, carnivore=25, disaster_p=0.001, rewards=None):
-
+    
         self.row_num = row
         self.col_num = col
         self.cell_num = row*col
@@ -135,7 +135,7 @@ class Forest:
 
     # judge if the carnivore is too far from its initial position
     def is_too_far(self, p1, p2, distance=3):
-        if abs(p1/self.col_num-p2/self.col_num) + abs(p1%self.col_num-p2%self.col_num) >= distance:
+        if abs(p1/self.col_num-p2/self.col_num) + abs(p1 % self.col_num-p2 % self.col_num) >= distance:
             return True
         else:
             return False

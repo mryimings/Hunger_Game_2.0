@@ -18,6 +18,8 @@ def Q_Learing(forest_env, num_episode=100, gamma=0.95, lr=0.1, e=0.1, max_iter=2
             total_reward += reward
             q[pos][action] = (1-lr)*q[pos][action] + lr * (reward + gamma * max(q[next_pos]))
             forest_env.env_move_forward()
+            pos = next_pos
+            print pos, total_reward
             iter_times += 1
             pos = next_pos
         max_survival_time = max(max_survival_time, iter_times)
