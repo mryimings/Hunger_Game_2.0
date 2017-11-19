@@ -196,4 +196,32 @@ class Forest:
                 print('\n')
 
 
+    def print_map(self, agent_position):
+        #pass
+        # tree mush animal carni disa trap
+        print('\033[0m■')  # white
+        print('\033[91m■') # red
+        print('\033[94m■') # green
+        print('\033[93m■') # yellow
+        print('\033[0m■')  # white
+
+        for i in range(len(self.cells)):
+            if i % self.row_num == 0:
+                print(row)
+                row = ''
+            else:
+                if i == agent_position:
+    
+                else:
+                    if (self.cells[i]['attribute']) == 'blank':
+                        row += '\033[0m■' #white
+                    elif (self.cells[i]['attribute']) == 'tree':
+                        row += '\033[94m■' #green
+                    elif (self.cells[i]['attribute']) == 'trap':
+                        row += '\033[91m■' #red
+                    elif (self.cells[i]['attribute']) == 'mushroom':
+                        row += '\033[93m' #yellow
+
+        #agent_position
+
 
