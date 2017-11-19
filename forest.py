@@ -3,7 +3,7 @@ import random
 action_mapping = {0: 'up', 1: 'right', 2: 'down', 3: 'left', 4: 'stay'}
 
 class Forest:
-    def __init__(self, row=25, col=20, tree=25, trap=25, mushroom=25, carnivore=25, disaster_p=0.001):
+    def __init__(self, row=25, col=20, tree=25, trap=25, mushroom=25, carnivore=25, disaster_p=0.001, mushroom_rew=50, mushroom_rec=100):
 
         self.row_num = row
         self.col_num = col
@@ -19,6 +19,9 @@ class Forest:
         self.disaster_area = set()
         self.disaster_last_time = 0
         self.disaster_probability = disaster_p
+        self.mushroom_reward = mushroom_rew
+        self.mushroom_recover = mushroom_rec
+
 
         for i in range(self.cell_num):
 
@@ -92,10 +95,10 @@ class Forest:
             ret_reward += (random.randint(0,20)-10)
         elif curr_att == 'trap':
             ret_reward += -100
-        elif curr_att == 'mushroon':
-            if self.mushroom_states[position] >= 0:
-                ret_reward += 50
-                self.mushroom_states[position] = 100
+        elif curr_att == 'mushroom':
+            if self.mushroom_states[position] <= 0:
+                ret_reward += self.mushroom_reward
+                self.mushroom_states[position] = self.mushroom_recover
             else:
                 ret_reward += -1
 
@@ -124,7 +127,7 @@ class Forest:
 
     # judge if the carnivore is too far from its initial position
     def is_too_far(self, p1, p2, distance=3):
-        if abs(p1/self.col_num-p2/self.col_num) + abs(p1%self.col_num-p2%self.col_num) >= distance:
+        if abs(p1/self.col_num-p2/self.col_num) + abs(p1 % self.col_num-p2 % self.col_num) >= distance:
             return True
         else:
             return False
