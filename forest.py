@@ -188,11 +188,11 @@ class Forest:
         for mushroom_pos in self.mushroom_states:
             self.mushroom_states[mushroom_pos] = 0
 
-        #self.disaster_area = set()
-        #self.disaster_last_time = 0
+        self.disaster_area = set()
+        self.disaster_last_time = 0
 
-        #self.curr_carnivores = {}
-        #for carn in self.carnivores:
-            #self.carnivores[carn] = carn
-            #self.curr_carnivores[carn] = 1
+        self.curr_carnivores = {}
+        for carn in self.carnivores:
+            self.carnivores[carn] = carn
+            self.curr_carnivores[carn] = 1
 
