@@ -142,7 +142,7 @@ class Forest:
 
             # if a carnivore goes too far, it will come back
             if self.is_too_far(p1=carn_init_pos, p2=carn_curr_pos):
-                if carn_curr_pos/self.col_num - carn_init_pos/self.col_num < 0:
+                    if carn_curr_pos/self.col_num - carn_init_pos/self.col_num < 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['down']
                 elif carn_curr_pos/self.col_num - carn_init_pos/self.col_num > 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['up']
@@ -195,4 +195,30 @@ class Forest:
         for carn in self.carnivores:
             self.carnivores[carn] = carn
             self.curr_carnivores[carn] = 1
-
+    
+    def print_map(self, agent_position):
+        #pass
+        # tree mush animal carni disa trap
+        """print('\033[0m■')  # white
+        print('\033[91m■') # red
+        print('\033[94m■') # green
+        print('\033[93m■') # yellow
+        print('\033[0m■')  # white"""
+        row = ''
+        for i in range(len(self.cells)):
+            if i % self.row_num == 0:
+                print(row)
+                row = ''
+            else:
+                if i == agent_position:
+                    row += '\033[91mx'
+                else:
+                    if (self.cells[i]['attribute']) == 'blank':
+                        row += '\033[0m■' #white
+                    elif (self.cells[i]['attribute']) == 'tree':
+                        row += '\033[94m■' #green
+                    elif (self.cells[i]['attribute']) == 'trap':
+                        row += '\033[91m■' #red
+                    elif (self.cells[i]['attribute']) == 'mushroom':
+                        row += '\033[93m' #yellow
+            print(row)
