@@ -203,14 +203,14 @@ class Forest:
                 print(row)
                 row = ''
             if i == agent_position:
-                row += '\033[91mx'
+                row += '\033[91mx' + ' '
             else:
                 if (self.cells[i]['attribute']) == 'blank':
-                    row += '\033[0m■' #white
+                    row += '\033[0m■' + ' ' #white
                 elif (self.cells[i]['attribute']) == 'tree':
-                    row += '\033[94m■' #green
+                    row += '\033[94m■' + ' ' #green
                 elif (self.cells[i]['attribute']) == 'trap':
-                    row += '\033[91m■' #red
+                    row += '\033[91m■' + ' ' #red
                 elif (self.cells[i]['attribute']) == 'mushroom':
-                    row += '\033[93m' #yellow
-            print(row)
+                    row += '\033[93m■' + ' ' #yellow
+        print(row)
