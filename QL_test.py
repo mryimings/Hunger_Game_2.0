@@ -24,9 +24,12 @@ def Q_Learing(forest_env, num_episode=100000, gamma=0.95, lr=0.1, e=0.1, max_ite
 
 def e_greedy_pick(Q, state, e):
     max_action = 0
-    return max_action
+    if (random.random()>e):
+        return numpy.argmax(Q[state])
+    else:
+        return random.randint(0,4)
 
 if __name__ == '__main__':
-    f= forest.Forest(row=10, col=10, mushroom=5, trap=0, tree=0, carnivore=5, disaster_p=0)
+    f = forest.Forest(row=10, col=10, mushroom=5, trap=0, tree=0, carnivore=5, disaster_p=0)
     model, max_survival_time = Q_Learing(f, num_episode=100)
     print max_survival_time
