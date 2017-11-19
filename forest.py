@@ -1,5 +1,6 @@
 import random
 
+action_mapping = {0: 'up', 1: 'right', 2: 'down', 3: 'left', 4: 'stay'}
 
 class Forest:
     def __init__(self, row=25, col=20, tree=25, trap=25, mushroom=25, carnivore=25, disaster_p=0.001):
@@ -13,8 +14,8 @@ class Forest:
         self.mushroom_num = mushroom
         self.carnivore_num = carnivore
         self.mushroom_states = {}
-        self.carnivores = {}
-        self.curr_carnivores = set()
+        self.carnivores = {}  # key is initial position for each carnivore, and value is current position
+        self.curr_carnivores = {}  # stores the current position for each carnivore, for better search performance
         self.disaster_area = set()
         self.disaster_last_time = 0
         self.disaster_probability = disaster_p
@@ -50,8 +51,6 @@ class Forest:
         self.init_mushroom()
         self.init_carnivore()
 
-
-
     def init_tree(self):
         count_tree = 0
         while count_tree < self.tree_num:
@@ -82,7 +81,7 @@ class Forest:
             i = random.randint(0, len(self.cells))
             if i not in self.carnivores:
                 self.carnivores[i] = i
-                self.curr_carnivores.add(i)
+                self.curr_carnivores[i] = 1
 
     def get_reward(self, position):
         curr_att = self.cells[position]['attribute']
@@ -101,7 +100,7 @@ class Forest:
                 ret_reward += -1
 
         if position in self.curr_carnivores:
-            ret_reward += -100
+            ret_reward += -100 * self.curr_carnivores[position]
 
         if position in self.disaster_area:
             ret_reward += -10
@@ -123,6 +122,7 @@ class Forest:
         else:
             return 'what the hell'
 
+    # judge if the carnivore is too far from its initial position
     def is_too_far(self, p1, p2, distance=3):
         if abs(p1/self.col_num-p2/self.col_num) + abs(p1%self.col_num-p2%self.col_num) >= distance:
             return True
@@ -136,7 +136,11 @@ class Forest:
 
         for carn_init_pos in self.carnivores:
             carn_curr_pos = self.carnivores[carn_init_pos]
-            self.curr_carnivores.remove(carn_curr_pos)
+            self.curr_carnivores[carn_curr_pos] -= 1
+            if self.curr_carnivores[carn_curr_pos] == 0:
+                self.curr_carnivores.pop(carn_curr_pos)
+
+            # if a carnivore goes too far, it will come back
             if self.is_too_far(p1=carn_init_pos, p2=carn_curr_pos):
                 if carn_curr_pos/self.col_num - carn_init_pos/self.col_num < 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['down']
@@ -148,10 +152,14 @@ class Forest:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['left']
                 else:
                     print "how can this be happening!"
+                # self.carnivores[carn_init_pos] = carn_init_pos
             else:
                 next_state = self.random_pick_action()
                 self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions'][next_state]
-            self.curr_carnivores.add(self.carnivores[carn_init_pos])
+
+            if self.carnivores[carn_init_pos] not in self.curr_carnivores:
+                self.curr_carnivores[self.carnivores[carn_init_pos]] = 0
+            self.curr_carnivores[self.carnivores[carn_init_pos]] += 1
 
         if self.disaster_last_time >= 0:
             self.disaster_last_time -= 1
@@ -175,3 +183,6 @@ class Forest:
                 print self.cells[i]['attribute']+',',
             if i % self.col_num == self.col_num-1:
                 print '\n'
+
+
+
