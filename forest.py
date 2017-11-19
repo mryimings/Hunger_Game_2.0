@@ -188,10 +188,10 @@ class Forest:
         self.disaster_area = set()
         self.disaster_last_time = 0
 
-        self.curr_carnivores = set()
+        self.curr_carnivores = {}
         for carn in self.carnivores:
             self.carnivores[carn] = carn
-            self.curr_carnivores.add(carn)
+            self.curr_carnivores[carn] = 1
 
 
 
