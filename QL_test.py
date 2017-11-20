@@ -36,7 +36,14 @@ def Q_Learing(forest_env, num_episode=100000, gamma=0.95, lr=0.1, e=0.1, max_ite
         max_survival_forPlot[num] = iter_times
         average_survival_list[num] = average_survival
 
+    plt.subplot(221)
+    plt.plot(episode_num_forPlot, max_survival_forPlot)
+    plt.title(s='Max survival time')
+
+    plt.subplot(222)
     plt.plot(episode_num_forPlot, average_survival_list)
+    plt.title(s='Average survival time')
+
     plt.show()
 
     print("finished!")
@@ -51,10 +58,9 @@ def e_greedy_pick(Q, state, e):
         return random.randint(0,4)
 
 if __name__ == '__main__':
-    f = forest.Forest(row=7, col=7, mushroom=5, trap=0, tree=0, carnivore=0, disaster_p=0)
-    #forest.Forest.print_forest(f)
-    f.print_map(None)
-    model, max_survival_time = Q_Learing(f, num_episode=1000)
-    print(max_survival_time)
+    f = forest.Forest(row=10, col=10, mushroom=5, trap=1, tree=1, carnivore=1, disaster_p=0)
+    forest.Forest.print_forest(f)
+    model, max_survival_time = Q_Learing(f, num_episode=2500)
+    print max_survival_time
     del f
     
