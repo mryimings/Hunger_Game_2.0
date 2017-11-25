@@ -14,7 +14,7 @@ def Q_Learing(forest_env, num_episode=100000, gamma=0.95, lr=0.1, e=0.1, max_ite
     average_survival = 100
     for num in range(num_episode):
         forest_env.re_initialize()
-        pos = random.randint(0, forest_env.cell_num - 1)
+        pos = 0
         iter_times = 0
         total_reward = 100
         while iter_times < max_iter and total_reward > 0:
