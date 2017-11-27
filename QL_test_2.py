@@ -36,8 +36,6 @@ def Q_Learing(forest_env, num_episode=100000, gamma=0.95, lr=0.1, e=0.1, max_ite
             max_survival_time = max(max_survival_time, iter_times)
             average_survival = (1-alpha)*average_survival + alpha*iter_times
             log_file.write('\n')
-            # draw pic
-            # print (iter_times)
             max_survival_forPlot[num] = iter_times
             average_survival_list[num] = average_survival
             print(num, iter_times)
@@ -128,7 +126,4 @@ if __name__ == '__main__':
     model, max_survival_time = Q_Learing(f, num_episode=50, e=0.2, lr=0.1, gamma=0.7, max_iter=100000)
 
     render_episode(model, f, num_render=1)
-    # print_model(model, f.col_num)
-    # print max_survival_time
     del f
-
