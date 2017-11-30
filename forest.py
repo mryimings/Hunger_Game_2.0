@@ -1,6 +1,10 @@
+# -*- coding: utf-8 -*-
+
 import random
+import numpy as np
 
 action_mapping = {0: 'up', 1: 'right', 2: 'down', 3: 'left', 4: 'stay'}
+
 
 class Forest:
     def __init__(self, row=25, col=20, tree=25, trap=25, mushroom=25, carnivore=25, disaster_p=0.001):
@@ -19,6 +23,8 @@ class Forest:
         self.disaster_area = set()
         self.disaster_last_time = 0
         self.disaster_probability = disaster_p
+
+        self.observation = np.zeros(self.cell_num) # for dqn as input
 
         for i in range(self.cell_num):
 
@@ -59,6 +65,8 @@ class Forest:
                 self.cells[i]['attribute'] = 'tree'
                 count_tree += 1
 
+                self.observation[i] = 10
+
     def init_trap(self):
         count_trap = 0
         while count_trap < self.trap_num:
@@ -66,6 +74,8 @@ class Forest:
             if self.cells[i]['attribute'] == 'blank':
                 self.cells[i]['attribute'] = 'trap'
                 count_trap += 1
+
+                self.observation[i] = -10
 
     def init_mushroom(self):
         count_mushroom = 0
@@ -76,12 +86,16 @@ class Forest:
                 count_mushroom += 1
                 self.mushroom_states[i] = 0
 
+                self.observation[i] = 30
+
     def init_carnivore(self):
         while len(self.carnivores) < self.carnivore_num:
             i = random.randint(0, len(self.cells))
             if i not in self.carnivores:
                 self.carnivores[i] = i
                 self.curr_carnivores[i] = 1
+
+                self.observation[i] = -30
 
     def get_reward(self, position):
         curr_att = self.cells[position]['attribute']
@@ -96,8 +110,12 @@ class Forest:
             if self.mushroom_states[position] <= 0:
                 ret_reward += 20
                 self.mushroom_states[position] = 50
+
+                self.observation[position] = 0
             else:
                 ret_reward += -1
+
+                self.observation[position] = 0
 
         if position in self.curr_carnivores:
             ret_reward += -100 * self.curr_carnivores[position]
@@ -133,6 +151,11 @@ class Forest:
         for mushroom_pos in self.mushroom_states:
             if self.mushroom_states[mushroom_pos] > 0:
                 self.mushroom_states[mushroom_pos] -= 1
+
+                # for dqn
+                if(self.mushroom_states[mushroom_pos] == 0):
+                    self.observation[position] = 30
+
 
         for carn_init_pos in self.carnivores:
             carn_curr_pos = self.carnivores[carn_init_pos]
@@ -187,6 +210,7 @@ class Forest:
     def re_initialize(self):
         for mushroom_pos in self.mushroom_states:
             self.mushroom_states[mushroom_pos] = 0
+            self.observation[mushroom_pos] = 30
 
         self.disaster_area = set()
         self.disaster_last_time = 0
@@ -203,14 +227,30 @@ class Forest:
                 print(row)
                 row = ''
             if i == agent_position:
+                # red
                 row += '\033[91mx' + ' '
+            if i in self.curr_carnivores:
+                # red
+                row += '\033[91mo' + ' '
             else:
                 if (self.cells[i]['attribute']) == 'blank':
-                    row += '\033[0m■' + ' ' #white
+                    # white
+                    row += '\033[0m■' + ' '
                 elif (self.cells[i]['attribute']) == 'tree':
-                    row += '\033[94m■' + ' ' #green
+                    # blue
+                    row += '\033[94m■' + ' '
                 elif (self.cells[i]['attribute']) == 'trap':
-                    row += '\033[91m■' + ' ' #red
+                    # red
+                    row += '\033[91m■' + ' '
                 elif (self.cells[i]['attribute']) == 'mushroom':
-                    row += '\033[93m■' + ' ' #yellow
+                    # yellow
+                    row += '\033[93m■' + ' '
         print(row)
+
+
+    def get_observation(self, position):
+        self.observation[position] += 7
+
+        return self.observation
+
+
