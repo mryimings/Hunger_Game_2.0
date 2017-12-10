@@ -11,7 +11,7 @@ class Forest:
 
         self.row_num = row
         self.col_num = col
-        self.cell_num = row*col
+        self.cell_num = row * col
         self.cells = []
         self.tree_num = tree
         self.trap_num = trap
@@ -24,30 +24,29 @@ class Forest:
         self.disaster_last_time = 0
         self.disaster_probability = disaster_p
 
-        self.observation = np.zeros(self.cell_num) # for dqn as input
+        self.observation = np.zeros(self.cell_num)  # for dqn as input
 
         for i in range(self.cell_num):
-
-            curr_cell = {'actions':{}, 'attribute': 'blank'}
+            curr_cell = {'actions': {}, 'attribute': 'blank'}
 
             # The cells looks like:
             # 0, 1, 2, 3
             # 4, 5, 6, 7
             # 8, 9, 10, 11
 
-            #up
+            # up
             curr_cell['actions']['up'] = i if i < self.col_num else i - self.col_num
 
-            #right
-            curr_cell['actions']['right'] = i if i % self.col_num == self.col_num-1 else i+1
+            # right
+            curr_cell['actions']['right'] = i if i % self.col_num == self.col_num - 1 else i + 1
 
-            #down
+            # down
             curr_cell['actions']['down'] = i if i >= self.cell_num - self.col_num else i + self.col_num
 
-            #right
-            curr_cell['actions']['left'] = i if i % self.col_num == 0 else i-1
+            # right
+            curr_cell['actions']['left'] = i if i % self.col_num == 0 else i - 1
 
-            #stay
+            # stay
             curr_cell['actions']['stay'] = i
 
             self.cells.append(curr_cell)
@@ -60,7 +59,7 @@ class Forest:
     def init_tree(self):
         count_tree = 0
         while count_tree < self.tree_num:
-            i = random.randint(0, len(self.cells)-1)
+            i = random.randint(0, len(self.cells) - 1)
             if self.cells[i]['attribute'] == 'blank':
                 self.cells[i]['attribute'] = 'tree'
                 count_tree += 1
@@ -70,7 +69,7 @@ class Forest:
     def init_trap(self):
         count_trap = 0
         while count_trap < self.trap_num:
-            i = random.randint(0, len(self.cells)-1)
+            i = random.randint(0, len(self.cells) - 1)
             if self.cells[i]['attribute'] == 'blank':
                 self.cells[i]['attribute'] = 'trap'
                 count_trap += 1
@@ -80,7 +79,7 @@ class Forest:
     def init_mushroom(self):
         count_mushroom = 0
         while count_mushroom < self.mushroom_num:
-            i = random.randint(0, len(self.cells)-1)
+            i = random.randint(0, len(self.cells) - 1)
             if self.cells[i]['attribute'] == 'blank':
                 self.cells[i]['attribute'] = 'mushroom'
                 count_mushroom += 1
@@ -103,7 +102,7 @@ class Forest:
         if curr_att == 'blank':
             ret_reward += -1
         elif curr_att == 'tree':
-            ret_reward += (random.randint(0,20)-10)
+            ret_reward += (random.randint(0, 20) - 10)
         elif curr_att == 'trap':
             ret_reward += -100
         elif curr_att == 'mushroom':
@@ -142,7 +141,7 @@ class Forest:
 
     # judge if the carnivore is too far from its initial position
     def is_too_far(self, p1, p2, distance=3):
-        if abs(p1/self.col_num-p2/self.col_num) + abs(p1%self.col_num-p2%self.col_num) >= distance:
+        if abs(p1 / self.col_num - p2 / self.col_num) + abs(p1 % self.col_num - p2 % self.col_num) >= distance:
             return True
         else:
             return False
@@ -153,9 +152,8 @@ class Forest:
                 self.mushroom_states[mushroom_pos] -= 1
 
                 # for dqn
-                if(self.mushroom_states[mushroom_pos] == 0):
-                    self.observation[position] = 30
-
+                if (self.mushroom_states[mushroom_pos] == 0):
+                    self.observation[mushroom_pos] = 30
 
         for carn_init_pos in self.carnivores:
             carn_curr_pos = self.carnivores[carn_init_pos]
@@ -165,17 +163,17 @@ class Forest:
 
             # if a carnivore goes too far, it will come back
             if self.is_too_far(p1=carn_init_pos, p2=carn_curr_pos):
-                if carn_curr_pos/self.col_num - carn_init_pos/self.col_num < 0:
+                if carn_curr_pos / self.col_num - carn_init_pos / self.col_num < 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['down']
-                elif carn_curr_pos/self.col_num - carn_init_pos/self.col_num > 0:
+                elif carn_curr_pos / self.col_num - carn_init_pos / self.col_num > 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['up']
-                elif carn_curr_pos%self.col_num - carn_init_pos%self.col_num > 0:
+                elif carn_curr_pos % self.col_num - carn_init_pos % self.col_num > 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['right']
-                elif carn_curr_pos%self.col_num - carn_init_pos%self.col_num < 0:
+                elif carn_curr_pos % self.col_num - carn_init_pos % self.col_num < 0:
                     self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions']['left']
                 else:
                     print("how can this be happening!")
-                # self.carnivores[carn_init_pos] = carn_init_pos
+                    # self.carnivores[carn_init_pos] = carn_init_pos
             else:
                 next_state = self.random_pick_action()
                 self.carnivores[carn_init_pos] = self.cells[carn_curr_pos]['actions'][next_state]
@@ -203,8 +201,8 @@ class Forest:
             if i in self.curr_carnivores:
                 print('carnivore,'),
             else:
-                print(self.cells[i]['attribute']+','),
-            if i % self.col_num == self.col_num-1:
+                print(self.cells[i]['attribute'] + ','),
+            if i % self.col_num == self.col_num - 1:
                 print('\n')
 
     def re_initialize(self):
@@ -219,7 +217,7 @@ class Forest:
         for carn in self.carnivores:
             self.carnivores[carn] = carn
             self.curr_carnivores[carn] = 1
-    
+
     def print_map(self, agent_position):
         row = ''
         for i in range(len(self.cells)):
@@ -229,11 +227,11 @@ class Forest:
             if i == agent_position:
                 # red
                 row += '\033[91mx' + ' '
-            if i in self.curr_carnivores:
-                # red
-                row += '\033[91mo' + ' '
             else:
-                if (self.cells[i]['attribute']) == 'blank':
+                if i in self.curr_carnivores:
+                    # red
+                    row += '\033[91mo' + ' '
+                elif (self.cells[i]['attribute']) == 'blank':
                     # white
                     row += '\033[0m■' + ' '
                 elif (self.cells[i]['attribute']) == 'tree':
@@ -246,7 +244,6 @@ class Forest:
                     # yellow
                     row += '\033[93m■' + ' '
         print(row)
-
 
     def get_observation(self, position):
         self.observation[position] += 7
