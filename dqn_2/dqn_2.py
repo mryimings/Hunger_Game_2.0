@@ -73,8 +73,8 @@ class DeepQNet:
 
     def _build_net(self):
         # ------------------ all inputs ------------------------
-        self.s = tf.placeholder(tf.float32, [None, self.n_features, self.n_features, 1], name='s')  # input State
-        self.s_ = tf.placeholder(tf.float32, [None, self.n_features, self.n_features, 1], name='s_')  # input Next State
+        self.s = tf.placeholder(tf.float32, [None, self.n_features*self.n_features], name='s')  # input State
+        self.s_ = tf.placeholder(tf.float32, [None, self.n_features*self.n_features], name='s_')  # input Next State
         self.r = tf.placeholder(tf.float32, [None, ], name='r')  # input Reward
         self.a = tf.placeholder(tf.int32, [None, ], name='a')  # input Action
 
@@ -133,10 +133,10 @@ class DeepQNet:
         with tf.variable_scope('eval_net'):
             
             ############################################CONV1##########################################
-            ew1_shape = [3, 3, 1, 32]
+            ew1_shape = [3, 3, 1, 64]
             eweight1 = tf.get_variable(name='conv_kernel_1', shape=ew1_shape,
                                      initializer=tf.glorot_uniform_initializer(seed=50))
-            eb1_shape = [32]
+            eb1_shape = [64]
             ebias1 = tf.get_variable(name='conv_bias_1', shape=eb1_shape,
                                    initializer=tf.glorot_uniform_initializer(seed=50))
             epooling1_shape = [1, 2, 2, 1]
@@ -145,10 +145,10 @@ class DeepQNet:
             ecr1 = tf.nn.relu(ec1 + ebias1)
             epl1 = tf.nn.max_pool(ecr1, strides=epooling1_shape,ksize=epooling1_shape, padding="SAME")
             ############################################CONV2##########################################
-            ew2_shape = [3, 3, 32, 32]
+            ew2_shape = [3, 3, 64, 64]
             eweight2 = tf.get_variable(name='conv_kernel_2', shape=ew2_shape,
                                      initializer=tf.glorot_uniform_initializer(seed=50))
-            eb2_shape = [32]
+            eb2_shape = [64]
             ebias2 = tf.get_variable(name='conv_bias_2', shape=eb2_shape,
                                    initializer=tf.glorot_uniform_initializer(seed=50))
             epooling2_shape = [1, 2, 2, 1]
@@ -161,21 +161,23 @@ class DeepQNet:
             evector_length = es1[1].value * es1[2].value * es1[3].value
             eflatten = tf.reshape(epl2, shape=[-1, evector_length])
             
-            e1 = tf.layers.dense(eflatten, 50, tf.nn.relu, kernel_initializer=w_initializer,
+            e1 = tf.layers.dense(eflatten, 100, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='e1')
-            e2 = tf.layers.dense(e1, 50, tf.nn.relu, kernel_initializer=w_initializer,
+            e2 = tf.layers.dense(e1, 100, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='e2')
-            self.q_eval = tf.layers.dense(e2, self.n_actions, kernel_initializer=w_initializer,
+            e3 = tf.layers.dense(e2, 100, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='e3')
+            self.q_eval = tf.layers.dense(e3, self.n_actions, kernel_initializer=w_initializer,
                                           bias_initializer=b_initializer, name='q')
 
 
         # ------------------ build target_net ------------------
         with tf.variable_scope('target_net'):
             ############################################CONV1##########################################
-            tw1_shape = [3, 3, 1, 32]
+            tw1_shape = [3, 3, 1, 64]
             tweight1 = tf.get_variable(name='conv_kernel_1', shape=tw1_shape,
                                      initializer=tf.glorot_uniform_initializer(seed=50))
-            tb1_shape = [32]
+            tb1_shape = [64]
             tbias1 = tf.get_variable(name='conv_bias_1', shape=tb1_shape,
                                    initializer=tf.glorot_uniform_initializer(seed=50))
             tpooling1_shape = [1, 2, 2, 1]
@@ -184,10 +186,10 @@ class DeepQNet:
             tcr1 = tf.nn.relu(tc1 + tbias1)
             tpl1 = tf.nn.max_pool(tcr1, strides=tpooling1_shape,ksize=tpooling1_shape, padding="SAME")
             ############################################CONV2##########################################
-            tw2_shape = [3, 3, 32, 32]
+            tw2_shape = [3, 3, 64, 64]
             tweight2 = tf.get_variable(name='conv_kernel_2', shape=tw2_shape,
                                      initializer=tf.glorot_uniform_initializer(seed=50))
-            tb2_shape = [32]
+            tb2_shape = [64]
             tbias2 = tf.get_variable(name='conv_bias_2', shape=tb2_shape,
                                    initializer=tf.glorot_uniform_initializer(seed=50))
             tpooling2_shape = [1, 2, 2, 1]
@@ -200,11 +202,13 @@ class DeepQNet:
             tvector_length = ts1[1].value * ts1[2].value * ts1[3].value
             tflatten = tf.reshape(tpl2, shape=[-1, tvector_length])
             
-            t1 = tf.layers.dense(tflatten, 50, tf.nn.relu, kernel_initializer=w_initializer,
+            t1 = tf.layers.dense(tflatten, 100, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='t1')
-            t2 = tf.layers.dense(t1, 50, tf.nn.relu, kernel_initializer=w_initializer,
+            t2 = tf.layers.dense(t1, 100, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='t2')
-            self.q_next = tf.layers.dense(t2, self.n_actions, kernel_initializer=w_initializer,
+            t3 = tf.layers.dense(t2, 100, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='t3')
+            self.q_next = tf.layers.dense(t3, self.n_actions, kernel_initializer=w_initializer,
                                           bias_initializer=b_initializer, name='target')
 
 
@@ -238,7 +242,8 @@ class DeepQNet:
 
         if np.random.uniform() > self.epsilon:
             # forward feed the observation and get q value for every actions
-            actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation.reshape(1,self.n_features,self.n_features,1)})
+            #actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation.reshape(1,self.n_features,self.n_features,1)})
+            actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation.reshape(1,self.n_features*self.n_features)})
             action = np.argmax(actions_value)
         else:
             action = np.random.randint(0, self.n_actions)
@@ -260,16 +265,24 @@ class DeepQNet:
         batch_memory = self.memory[sample_index, :]
 
         x=batch_memory.shape[0]
-        _, cost = self.sess.run(
+        """_, cost = self.sess.run(
             [self._train_op, self.loss],
             feed_dict={
                 self.s: batch_memory[:, :self.n_features**2].reshape(x,self.n_features,self.n_features,1),
                 self.a: batch_memory[:, self.n_features**2],
                 self.r: batch_memory[:, self.n_features**2 + 1],
                 self.s_: batch_memory[:, -self.n_features**2:].reshape(x,self.n_features,self.n_features,1),
-            })
-        if ( int(self.learn_step_counter % 5000 == 0) ):
-            print('%d,cost:%d' % (self.learn_step_counter, cost))
+            })"""
+        _, cost = self.sess.run(
+            [self._train_op, self.loss],
+            feed_dict={
+                self.s: batch_memory[:, :self.n_features**2],
+                self.a: batch_memory[:, self.n_features**2],
+                self.r: batch_memory[:, self.n_features**2 + 1],
+                self.s_: batch_memory[:, -self.n_features**2:],
+        })
+        #if ( int(self.learn_step_counter % 5000 == 0) ):
+        #    print('%d,cost:%d' % (self.learn_step_counter, cost))
 
         self.cost_his.append(cost)
 
@@ -293,70 +306,80 @@ class DeepQNet:
 def train(env, net, episode = 500, vision = 13):
     step = 0
     log_gameTime = []
-    for episode in range(episode):
-        print('No.%d episode!' % (episode+1))
-        # initial observation
-        pos = env.init_env(refresh = True)
-        observation = env.get_observation().flatten()
-        #observation = np.reshape(observation, (vision, vision, 1))
-        total_rewards = 1000
-        gameTime = 0
+    with tf.Session() as sess:
+        saver = tf.train.Saver()
+        sess.run(tf.global_variables_initializer())
+        for episode in range(episode):
+            print('No.%d episode!' % (episode+1))
+            # initial observation
+            pos = env.init_env(refresh = True)
+            observation = env.get_observation().flatten()
+            #observation = np.reshape(observation, (vision, vision, 1))
+            total_rewards = 1000
+            gameTime = 0
 
-        # refresh env
+            # refresh env
 
-        while True:
-            gameTime += 1
-            
-            # RL choose action based on observation
-            action = net.choose_action(observation)
+            while True:
+                gameTime += 1
 
-            # RL take action and get next observation and reward
-            #observation_, reward, done = env.step(action)
-            reward = env.get_reward(action)
-            total_rewards += reward
-            observation_ = env.get_observation().flatten()
-            #observation_ = np.reshape(observation_, (vision, vision, 1))
-            #print(observation.shape)
-            net.store_transition(observation, action, reward, observation_)
+                # RL choose action based on observation
+                action = net.choose_action(observation)
 
-            #if (step > 200) and (step % 5 == 0):
-            if (step > 200):
-                net.learn()
+                # RL take action and get next observation and reward
+                #observation_, reward, done = env.step(action)
+                reward = env.get_reward(action)
+                total_rewards += reward
+                observation_ = env.get_observation().flatten()
+                #observation_ = np.reshape(observation_, (vision, vision, 1))
+                #print(observation.shape)
+                net.store_transition(observation, action, reward, observation_)
 
-            # swap observation
-            observation = observation_
-            # break while loop when end of this episode
-            if (total_rewards < 0) or (gameTime > 100000):
-                #print('!')
-                log_gameTime.append(gameTime)
-                gameTime = 0
-                total_rewards = 500
-                break
-            step += 1
+                #if (step > 200) and (step % 5 == 0):
+                if (step > 200):
+                    net.learn()
 
+                # swap observation
+                observation = observation_
+                # break while loop when end of this episode
+                if (total_rewards < 0) or (gameTime > 100000):
+                    #print('!')
+                    log_gameTime.append(gameTime)
+                    gameTime = 0
+                    total_rewards = 500
+                    break
+                step += 1
+            if(episode % 500 == 0):
+                np.save('plt_data/d100-d100_game_time_{}.npy'.format(episode), log_gameTime)
+                np.save('plt_data/d100-d100_cost_{}.npy'.format(episode), net.cost_his)
+                saver.save(sess, 'model/d100-d100_vi13_epi{}_Adam'.format(episode))
+            #saver.save(sess, 'model/{}'.format('c32@3-c32@3-d50-d50_vi13_epi300_Adam'))
 
-    # end of game
-    print('game over')
-    plt.plot(np.arange(len(log_gameTime)), log_gameTime)
-    plt.ylabel('Game Time')
-    plt.xlabel('Episode')
-    plt.show()
-    
-    average_time = []
-    accumulator = 0
-    count = 0
-    for i in range(len(log_gameTime)):
-        count += 1
-        accumulator += log_gameTime[i]
-        average_time.append(accumulator/count)
-    plt.plot(np.arange(len(average_time)), average_time)
-    plt.ylabel('Average Game Time')
-    plt.xlabel('Episode')
-    plt.show()
+        # end of game
+        print('game over')
         
-        
-    
-    #env.destroy()
+        np.save('plt_data/game_time.npy', log_gameTime)
+        np.save('plt_data/cost.npy', net.cost_his)
+        """plt.plot(np.arange(len(log_gameTime)), log_gameTime)
+        plt.ylabel('Game Time')
+        plt.xlabel('Episode')
+        plt.show()
+
+        average_time = []
+        accumulator = 0
+        count = 0
+        for i in range(len(log_gameTime)):
+            count += 1
+            accumulator += log_gameTime[i]
+            average_time.append(accumulator/count)
+        plt.plot(np.arange(len(average_time)), average_time)
+        plt.ylabel('Average Game Time')
+        plt.xlabel('Episode')
+        plt.show()"""
+
+
+
+        #env.destroy()
 
 
 if __name__ == "__main__":
