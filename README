@@ -1,1 +1,6 @@
-This is our project repository.
+• 'forest_simulation' is the previous name. The formal name of this project should be 'Hunger Game 2.0'
+• In Hunger Game 2.0, we aims to find the optimal policy for an animal to survive as long as possible in a forest.
+• The animal gains reward if it finds food, or is punished if it encounters carnivores.
+• Implemented 3 different algorithms - traditional Q-learning, Deep Q Network
+• with Multilayer Perceptron, Deep Q Network with Convolutional Neuron Network.
+• Refined the traditional Q-Learning, with which the animal can survive almost infinite rounds.
